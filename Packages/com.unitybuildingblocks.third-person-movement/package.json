@@ -1,0 +1,21 @@
+{
+  "name": "com.unitybuildingblocks.third-person-movement",
+  "version": "0.1.0",
+  "displayName": "Unity Building Blocks - Third Person Movement",
+  "description": "Camera-relative 3D character movement using Unity's built-in CharacterController and the Input System.",
+  "unity": "6000.6",
+  "unityRelease": "6000.6.0f1",
+  "author": {
+    "name": "Humra"
+  },
+  "keywords": [
+    "movement",
+    "character-controller",
+    "third-person",
+    "input-system",
+    "mechanic"
+  ],
+  "dependencies": {
+    "com.unity.inputsystem": "1.14.0"
+  }
+}
