@@ -4,7 +4,7 @@
   "displayName": "Unity Building Blocks - Third Person Movement",
   "description": "Camera-relative 3D character movement using Unity's built-in CharacterController and the Input System.",
   "unity": "6000.6",
-  "unityRelease": "6000.6.0f1",
+  "unityRelease": "0f1",
   "author": {
     "name": "Humra"
   },
@@ -15,6 +15,12 @@
     "input-system",
     "mechanic"
   ],
+  "samples": [
+  {
+    "displayName": "Basic Third Person Movement",
+    "description": "A minimal scene demonstrating camera-relative movement.",
+    "path": "Samples~/BasicThirdPersonMovement"
+  }],
   "dependencies": {
     "com.unity.inputsystem": "1.14.0"
   }

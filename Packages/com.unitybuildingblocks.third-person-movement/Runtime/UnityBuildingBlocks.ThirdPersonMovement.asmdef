@@ -1,7 +1,9 @@
 {
   "name": "UnityBuildingBlocks.ThirdPersonMovement",
   "rootNamespace": "UnityBuildingBlocks.ThirdPersonMovement",
-  "references": [],
+  "references": [
+    "Unity.InputSystem"
+  ],
   "includePlatforms": [],
   "excludePlatforms": [],
   "allowUnsafeCode": false,
