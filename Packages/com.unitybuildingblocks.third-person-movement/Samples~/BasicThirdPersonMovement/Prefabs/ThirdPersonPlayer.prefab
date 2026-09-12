@@ -154,7 +154,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityBuildingBlocks.ThirdPersonMovement::UnityBuildingBlocks.ThirdPersonMovement.ThirdPersonMovementController
   moveSpeed: 5
-  rotationSpeed: 12
+  rotationSpeed: 180
+  useCameraRelativeMovement: 0
+  jumpEnabled: 0
+  maximumJumps: 1
+  jumpHeight: 1.5
   gravity: 20
   moveAction: {fileID: 8107968577354506020, guid: 3aea8d8d45c53aa45b0a991b85240c40, type: 3}
+  rotateAction: {fileID: 1279607489015449007, guid: 3aea8d8d45c53aa45b0a991b85240c40, type: 3}
+  jumpAction: {fileID: 8697897064930653633, guid: 3aea8d8d45c53aa45b0a991b85240c40, type: 3}
   movementReference: {fileID: 0}
