@@ -1,0 +1,78 @@
+{
+    "version": 1,
+    "name": "IsometricControls",
+    "maps": [
+        {
+            "name": "Player",
+            "id": "ece53069-55ff-4742-bc89-46fab48cf3f2",
+            "actions": [
+                {
+                    "name": "MoveToPointer",
+                    "type": "Button",
+                    "id": "7cdbe23e-cb18-44f4-9898-1004e983ac22",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
+                },
+                {
+                    "name": "PointerPosition",
+                    "type": "Value",
+                    "id": "734c921f-45fe-4170-9e36-b8966799f96b",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true,
+                    "priority": 0
+                },
+                {
+                    "name": "Zoom",
+                    "type": "Value",
+                    "id": "bafa02c8-c377-4c83-aaff-304db11185fc",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true,
+                    "priority": 0
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "77c52f03-9c35-4d22-b364-a4446cb64798",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MoveToPointer",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f48954e9-d6a6-4ad5-9074-44428cd50e59",
+                    "path": "<Pointer>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PointerPosition",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d390d05f-bdc9-4a24-b3fa-3243361846e4",
+                    "path": "<Mouse>/scroll",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Zoom",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

@@ -1,0 +1,22 @@
+{
+  "name": "com.unitybuildingblocks.isometric-movement",
+  "version": "1.0.0",
+  "displayName": "Unity Building Blocks - Isometric Movement",
+  "description": "Point-and-click 3D isometric movement and camera controls using Unity's CharacterController and Input System.",
+  "unity": "6000.6",
+  "unityRelease": "0f1",
+  "author": {
+    "name": "Humra"
+  },
+  "keywords": [
+    "movement",
+    "isometric",
+    "point-and-click",
+    "camera",
+    "input-system",
+    "character-controller"
+  ],
+  "dependencies": {
+    "com.unity.inputsystem": "1.14.0"
+  }
+}
