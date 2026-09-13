@@ -730,6 +730,11 @@ MonoBehaviour:
   heightOffset: 1
   pitch: 20
   yawOffset: 0
+  zoomEnabled: 1
+  minimumDistance: 2
+  maximumDistance: 10
+  zoomSensitivity: 0.5
+  zoomSmoothTime: 0.08
   positionSmoothTime: 0.05
   rotationSmoothSpeed: 25
   lookAtHeight: 1

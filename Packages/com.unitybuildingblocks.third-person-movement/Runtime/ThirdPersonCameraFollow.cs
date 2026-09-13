@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace UnityBuildingBlocks.ThirdPersonMovement
 {
@@ -7,16 +8,20 @@ namespace UnityBuildingBlocks.ThirdPersonMovement
         [Header("Follow")]
         [SerializeField] private bool followPlayer = true;
         [SerializeField] private Transform target;
-
-        [Tooltip("Automatically rotate the camera behind the player's heading. " +
-                 "Disable this when using camera-relative movement.")]
-        [SerializeField] private bool followRotation = false;
+        [SerializeField] private bool followRotation = true;
 
         [Header("Camera Position")]
         [SerializeField, Min(0f)] private float distance = 6f;
         [SerializeField] private float heightOffset = 1f;
         [SerializeField, Range(-89f, 89f)] private float pitch = 20f;
         [SerializeField] private float yawOffset = 0f;
+
+        [Header("Zoom")]
+        [SerializeField] private bool zoomEnabled = true;
+        [SerializeField, Min(0.1f)] private float minimumDistance = 2f;
+        [SerializeField, Min(0.1f)] private float maximumDistance = 10f;
+        [SerializeField, Min(0f)] private float zoomSensitivity = 0.02f;
+        [SerializeField, Min(0f)] private float zoomSmoothTime = 0.08f;
 
         [Header("Smoothing")]
         [SerializeField, Min(0f)] private float positionSmoothTime = 0.1f;
@@ -26,11 +31,42 @@ namespace UnityBuildingBlocks.ThirdPersonMovement
         [SerializeField] private float lookAtHeight = 1f;
 
         private Vector3 positionVelocity;
+        private float distanceVelocity;
         private float initialYaw;
+        private float targetDistance;
 
         private void Awake()
         {
             initialYaw = transform.eulerAngles.y;
+
+            minimumDistance = Mathf.Min(
+                minimumDistance,
+                maximumDistance);
+
+            targetDistance = Mathf.Clamp(
+                distance,
+                minimumDistance,
+                maximumDistance);
+
+            distance = targetDistance;
+        }
+
+        private void Update()
+        {
+            if (!zoomEnabled || Mouse.current == null)
+            {
+                return;
+            }
+
+            float scroll = Mouse.current.scroll.ReadValue().y;
+
+            if (Mathf.Abs(scroll) > 0.001f)
+            {
+                targetDistance = Mathf.Clamp(
+                    targetDistance - scroll * zoomSensitivity,
+                    minimumDistance,
+                    maximumDistance);
+            }
         }
 
         private void LateUpdate()
@@ -40,11 +76,18 @@ namespace UnityBuildingBlocks.ThirdPersonMovement
                 return;
             }
 
+            distance = Mathf.SmoothDamp(
+                distance,
+                targetDistance,
+                ref distanceVelocity,
+                zoomSmoothTime);
+
             float yaw = followRotation
                 ? target.eulerAngles.y + yawOffset
                 : initialYaw + yawOffset;
 
-            Quaternion orbitRotation = Quaternion.Euler(pitch, yaw, 0f);
+            Quaternion orbitRotation =
+                Quaternion.Euler(pitch, yaw, 0f);
 
             Vector3 desiredPosition =
                 target.position +
@@ -60,7 +103,8 @@ namespace UnityBuildingBlocks.ThirdPersonMovement
             Vector3 lookAtPosition =
                 target.position + Vector3.up * lookAtHeight;
 
-            Vector3 lookDirection = lookAtPosition - transform.position;
+            Vector3 lookDirection =
+                lookAtPosition - transform.position;
 
             if (lookDirection.sqrMagnitude > 0.001f)
             {
