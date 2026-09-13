@@ -343,6 +343,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1821459175}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &1005311924 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5318725310377476850, guid: 95d5c8c5038582c4d98a77622eda4d59, type: 3}
+  m_PrefabInstance: {fileID: 1441351864}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1141951608
 GameObject:
   m_ObjectHideFlags: 0
@@ -606,7 +611,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityBuildingBlocks.IsometricMovement::UnityBuildingBlocks.IsometricMovement.IsometricCameraController
   followTarget: 1
-  target: {fileID: 0}
+  target: {fileID: 1005311924}
   followTargetRotation: 0
   pitch: 35
   yaw: 45

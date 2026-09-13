@@ -153,25 +153,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ca5fd67d3225f643be414c3039cc545, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityBuildingBlocks.IsometricMovement::UnityBuildingBlocks.IsometricMovement.IsometricMovementController
+  movementMode: 0
   movementEnabled: 1
   movementSpeed: 5
   rotationSpeed: 720
   stoppingDistance: 0.1
-  rotateTowardsDestination: 1
-  moveAction: {fileID: -3839018401615220624, guid: 2701215910c0cf84d948a93e06efeeef, type: 3}
-  pointerPositionAction: {fileID: 9138927177494927890, guid: 2701215910c0cf84d948a93e06efeeef, type: 3}
+  rotateTowardsMovement: 1
   updateDestinationWhileHeld: 1
   stopWhenMoveButtonReleased: 1
   holdToMoveThreshold: 0.15
+  moveAction: {fileID: -3839018401615220624, guid: 2701215910c0cf84d948a93e06efeeef, type: 3}
+  pointerPositionAction: {fileID: 9138927177494927890, guid: 2701215910c0cf84d948a93e06efeeef, type: 3}
+  useCameraRelativeKeyboardMovement: 1
+  keyboardMoveAction: {fileID: 5518203232639494227, guid: 2701215910c0cf84d948a93e06efeeef, type: 3}
+  allowMovementModeSwitching: 1
+  toggleMovementModeAction: {fileID: 2985924712047999546, guid: 2701215910c0cf84d948a93e06efeeef, type: 3}
   movementCamera: {fileID: 0}
   groundLayers:
     serializedVersion: 2
     m_Bits: 64
   maxRaycastDistance: 1000
   triggerInteraction: 1
-  gravityEnabled: 1
-  gravity: 20
-  groundedVerticalVelocity: -2
   stopWhenBlocked: 1
   blockedTimeBeforeStop: 0.15
   minimumMovementWhileBlocked: 0.001
+  gravityEnabled: 1
+  gravity: 20
+  groundedVerticalVelocity: -2

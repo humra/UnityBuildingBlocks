@@ -3,51 +3,66 @@ using UnityEngine.InputSystem;
 
 namespace UnityBuildingBlocks.IsometricMovement
 {
+    public enum IsometricMovementMode
+    {
+        ClickToMove,
+        Keyboard
+    }
+
     [RequireComponent(typeof(CharacterController))]
     public sealed class IsometricMovementController : MonoBehaviour
     {
         [Header("Movement")]
+        [SerializeField] private IsometricMovementMode movementMode = IsometricMovementMode.ClickToMove;
         [SerializeField] private bool movementEnabled = true;
         [SerializeField, Min(0f)] private float movementSpeed = 5f;
         [SerializeField, Min(0f)] private float rotationSpeed = 720f;
         [SerializeField, Min(0f)] private float stoppingDistance = 0.1f;
-        [SerializeField] private bool rotateTowardsDestination = true;
+        [SerializeField] private bool rotateTowardsMovement = true;
 
-        [Header("Input")]
-        [SerializeField] private InputActionReference moveAction;
-        [SerializeField] private InputActionReference pointerPositionAction;
+        [Header("Click To Move")]
         [SerializeField] private bool updateDestinationWhileHeld = true;
         [SerializeField] private bool stopWhenMoveButtonReleased = false;
         [SerializeField, Min(0f)] private float holdToMoveThreshold = 0.15f;
+        [SerializeField] private InputActionReference moveAction;
+        [SerializeField] private InputActionReference pointerPositionAction;
+
+        [Header("Keyboard Movement")]
+        [SerializeField] private bool useCameraRelativeKeyboardMovement = true;
+        [SerializeField] private InputActionReference keyboardMoveAction;
+
+        [Header("Movement Mode Switching")]
+        [SerializeField] private bool allowMovementModeSwitching = true;
+        [SerializeField] private InputActionReference toggleMovementModeAction;
 
         [Header("Raycast")]
         [SerializeField] private Camera movementCamera;
         [SerializeField] private LayerMask groundLayers = ~0;
         [SerializeField, Min(0f)] private float maxRaycastDistance = 1000f;
-        [SerializeField] private QueryTriggerInteraction triggerInteraction =
-            QueryTriggerInteraction.Ignore;
-
-        [Header("Gravity")]
-        [SerializeField] private bool gravityEnabled = true;
-        [SerializeField, Min(0f)] private float gravity = 20f;
-        [SerializeField, Range(-10f, 0f)] private float groundedVerticalVelocity = -2f;
+        [SerializeField] private QueryTriggerInteraction triggerInteraction = QueryTriggerInteraction.Ignore;
 
         [Header("Obstacle Handling")]
         [SerializeField] private bool stopWhenBlocked = true;
         [SerializeField, Min(0f)] private float blockedTimeBeforeStop = 0.15f;
         [SerializeField, Min(0f)] private float minimumMovementWhileBlocked = 0.001f;
 
+        [Header("Gravity")]
+        [SerializeField] private bool gravityEnabled = true;
+        [SerializeField, Min(0f)] private float gravity = 20f;
+        [SerializeField, Range(-10f, 0f)] private float groundedVerticalVelocity = -2f;
+
         private CharacterController characterController;
         private Vector3 destination;
         private float verticalVelocity;
-        private bool hasDestination;
         private float blockedTime;
         private float moveButtonHeldTime;
+        private bool hasDestination;
         private bool continuousMoveActive;
         private bool previousMoveButtonPressed;
 
         public bool HasDestination => hasDestination;
         public Vector3 Destination => destination;
+        public IsometricMovementMode MovementMode => movementMode;
 
         private void Awake()
         {
@@ -63,15 +78,38 @@ namespace UnityBuildingBlocks.IsometricMovement
         {
             EnableAction(moveAction);
             EnableAction(pointerPositionAction);
+            EnableAction(keyboardMoveAction);
+            EnableAction(toggleMovementModeAction);
         }
 
         private void OnDisable()
         {
             DisableAction(moveAction);
             DisableAction(pointerPositionAction);
+            DisableAction(keyboardMoveAction);
+            DisableAction(toggleMovementModeAction);
+
+            previousMoveButtonPressed = false;
+            continuousMoveActive = false;
+            moveButtonHeldTime = 0f;
         }
 
         private void Update()
+        {
+            if (allowMovementModeSwitching && toggleMovementModeAction != null && toggleMovementModeAction.action.WasPressedThisFrame())
+            {
+                ToggleMovementMode();
+            }
+
+            if (movementMode == IsometricMovementMode.ClickToMove)
+            {
+                HandleClickToMoveInput();
+            }
+
+            MoveCharacter();
+        }
+
+        private void HandleClickToMoveInput()
         {
             bool moveButtonPressed = moveAction != null && moveAction.action.IsPressed();
             bool moveButtonPressedThisFrame = moveAction != null && moveAction.action.WasPressedThisFrame();
@@ -110,8 +148,6 @@ namespace UnityBuildingBlocks.IsometricMovement
             }
 
             previousMoveButtonPressed = moveButtonPressed;
-
-            MoveCharacter();
         }
 
         private void SetDestinationFromPointer()
@@ -132,47 +168,56 @@ namespace UnityBuildingBlocks.IsometricMovement
             }
         }
 
-        public void SetDestination(Vector3 worldPosition)
+        private Vector3 GetKeyboardMovementDirection()
         {
-            if (!hasDestination || Vector3.Distance(destination, worldPosition) > 0.01f)
+            if (keyboardMoveAction == null)
             {
-                blockedTime = 0f;
+                return Vector3.zero;
             }
 
-            destination = worldPosition;
-            hasDestination = true;
+            Vector2 input = keyboardMoveAction.action.ReadValue<Vector2>();
+            Transform reference = useCameraRelativeKeyboardMovement && movementCamera != null ? movementCamera.transform : transform;
+
+            Vector3 forward = reference.forward;
+            Vector3 right = reference.right;
+
+            forward.y = 0f;
+            right.y = 0f;
+
+            forward.Normalize();
+            right.Normalize();
+
+            return Vector3.ClampMagnitude(right * input.x + forward * input.y, 1f);
         }
 
-        public void ClearDestination()
+        private Vector3 GetClickMovementDirection()
         {
-            hasDestination = false;
-            blockedTime = 0f;
+            if (!movementEnabled || !hasDestination)
+            {
+                return Vector3.zero;
+            }
+
+            Vector3 toDestination = destination - transform.position;
+            toDestination.y = 0f;
+
+            float stoppingDistanceToUse = Mathf.Max(stoppingDistance, 0.001f);
+
+            if (toDestination.sqrMagnitude <= stoppingDistanceToUse * stoppingDistanceToUse)
+            {
+                ClearDestination();
+                return Vector3.zero;
+            }
+
+            return toDestination.normalized;
         }
 
         private void MoveCharacter()
         {
-            Vector3 movementDirection = Vector3.zero;
+            Vector3 movementDirection = movementMode == IsometricMovementMode.Keyboard ? GetKeyboardMovementDirection() : GetClickMovementDirection();
 
-            if (movementEnabled && hasDestination)
+            if (movementDirection.sqrMagnitude > 0.001f && rotateTowardsMovement)
             {
-                Vector3 toDestination = destination - transform.position;
-                toDestination.y = 0f;
-
-                float stoppingDistanceToUse = Mathf.Max(stoppingDistance, 0.001f);
-
-                if (toDestination.sqrMagnitude <= stoppingDistanceToUse * stoppingDistanceToUse)
-                {
-                    ClearDestination();
-                }
-                else
-                {
-                    movementDirection = toDestination.normalized;
-
-                    if (rotateTowardsDestination)
-                    {
-                        RotateTowards(movementDirection);
-                    }
-                }
+                RotateTowards(movementDirection);
             }
 
             if (gravityEnabled)
@@ -191,8 +236,10 @@ namespace UnityBuildingBlocks.IsometricMovement
 
             Vector3 velocity = movementDirection * movementSpeed;
             velocity.y = verticalVelocity;
+
             Vector3 positionBeforeMove = transform.position;
             CollisionFlags collisionFlags = characterController.Move(velocity * Time.deltaTime);
+
             Vector3 movementDuringFrame = transform.position - positionBeforeMove;
             movementDuringFrame.y = 0f;
 
@@ -221,8 +268,42 @@ namespace UnityBuildingBlocks.IsometricMovement
         private void RotateTowards(Vector3 direction)
         {
             Quaternion targetRotation = Quaternion.LookRotation(direction, Vector3.up);
-
             transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+        }
+
+        public void SetDestination(Vector3 worldPosition)
+        {
+            if (!hasDestination || Vector3.Distance(destination, worldPosition) > 0.01f)
+            {
+                blockedTime = 0f;
+            }
+
+            destination = worldPosition;
+            hasDestination = true;
+        }
+
+        public void ClearDestination()
+        {
+            hasDestination = false;
+            blockedTime = 0f;
+        }
+
+        public void ToggleMovementMode()
+        {
+            movementMode = movementMode == IsometricMovementMode.ClickToMove ? IsometricMovementMode.Keyboard : IsometricMovementMode.ClickToMove;
+            ClearDestination();
+            moveButtonHeldTime = 0f;
+            continuousMoveActive = false;
+            previousMoveButtonPressed = false;
+        }
+
+        public void SetMovementMode(IsometricMovementMode newMovementMode)
+        {
+            movementMode = newMovementMode;
+            ClearDestination();
+            moveButtonHeldTime = 0f;
+            continuousMoveActive = false;
+            previousMoveButtonPressed = false;
         }
 
         private static void EnableAction(InputActionReference actionReference)
