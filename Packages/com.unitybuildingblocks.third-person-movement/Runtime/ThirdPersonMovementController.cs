@@ -56,29 +56,20 @@ namespace UnityBuildingBlocks.ThirdPersonMovement
 
         private void Update()
         {
-            Vector2 movementInput = moveAction != null
-                ? moveAction.action.ReadValue<Vector2>()
-                : Vector2.zero;
-
-            float rotationInput = rotateAction != null
-                ? rotateAction.action.ReadValue<float>()
-                : 0f;
+            Vector2 movementInput = moveAction != null ? moveAction.action.ReadValue<Vector2>() : Vector2.zero;
+            float rotationInput = rotateAction != null ? rotateAction.action.ReadValue<float>() : 0f;
 
             Rotate(rotationInput);
             HandleJumping();
 
-            Vector3 moveDirection =
-                GetMovementDirection(movementInput);
+            Vector3 moveDirection = GetMovementDirection(movementInput);
 
             Move(moveDirection);
         }
 
         private Vector3 GetMovementDirection(Vector2 input)
         {
-            Transform reference = useCameraRelativeMovement &&
-                                  movementReference != null
-                ? movementReference
-                : transform;
+            Transform reference = useCameraRelativeMovement && movementReference != null ? movementReference : transform;
 
             Vector3 forward = reference.forward;
             Vector3 right = reference.right;
@@ -89,9 +80,7 @@ namespace UnityBuildingBlocks.ThirdPersonMovement
             forward.Normalize();
             right.Normalize();
 
-            return Vector3.ClampMagnitude(
-                right * input.x + forward * input.y,
-                1f);
+            return Vector3.ClampMagnitude(right * input.x + forward * input.y, 1f);
         }
 
         private void Rotate(float rotationInput)
@@ -101,10 +90,7 @@ namespace UnityBuildingBlocks.ThirdPersonMovement
                 return;
             }
 
-            transform.Rotate(
-                Vector3.up,
-                rotationInput * rotationSpeed * Time.deltaTime,
-                Space.World);
+            transform.Rotate(Vector3.up, rotationInput * rotationSpeed * Time.deltaTime, Space.World);
         }
 
         private void HandleJumping()
@@ -121,16 +107,13 @@ namespace UnityBuildingBlocks.ThirdPersonMovement
                 verticalVelocity = -2f;
             }
 
-            bool jumpPressed = jumpAction != null &&
-                               jumpAction.action.WasPressedThisFrame();
+            bool jumpPressed = jumpAction != null && jumpAction.action.WasPressedThisFrame();
 
             bool canJump = isGrounded || jumpCount < maximumJumps;
 
             if (jumpEnabled && jumpPressed && canJump)
             {
-                verticalVelocity =
-                    Mathf.Sqrt(2f * jumpHeight * gravity);
-
+                verticalVelocity = Mathf.Sqrt(2f * jumpHeight * gravity);
                 jumpCount++;
             }
 
@@ -143,12 +126,10 @@ namespace UnityBuildingBlocks.ThirdPersonMovement
             Vector3 velocity = moveDirection * moveSpeed;
             velocity.y = verticalVelocity;
 
-            characterController.Move(
-                velocity * Time.deltaTime);
+            characterController.Move(velocity * Time.deltaTime);
         }
 
-        private static void EnableAction(
-            InputActionReference actionReference)
+        private static void EnableAction(InputActionReference actionReference)
         {
             if (actionReference != null)
             {
@@ -156,8 +137,7 @@ namespace UnityBuildingBlocks.ThirdPersonMovement
             }
         }
 
-        private static void DisableAction(
-            InputActionReference actionReference)
+        private static void DisableAction(InputActionReference actionReference)
         {
             if (actionReference != null)
             {

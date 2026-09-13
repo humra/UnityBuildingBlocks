@@ -39,14 +39,8 @@ namespace UnityBuildingBlocks.ThirdPersonMovement
         {
             initialYaw = transform.eulerAngles.y;
 
-            minimumDistance = Mathf.Min(
-                minimumDistance,
-                maximumDistance);
-
-            targetDistance = Mathf.Clamp(
-                distance,
-                minimumDistance,
-                maximumDistance);
+            minimumDistance = Mathf.Min(minimumDistance, maximumDistance);
+            targetDistance = Mathf.Clamp(distance, minimumDistance, maximumDistance);
 
             distance = targetDistance;
         }
@@ -62,10 +56,7 @@ namespace UnityBuildingBlocks.ThirdPersonMovement
 
             if (Mathf.Abs(scroll) > 0.001f)
             {
-                targetDistance = Mathf.Clamp(
-                    targetDistance - scroll * zoomSensitivity,
-                    minimumDistance,
-                    maximumDistance);
+                targetDistance = Mathf.Clamp(targetDistance - scroll * zoomSensitivity, minimumDistance, maximumDistance);
             }
         }
 
@@ -76,45 +67,22 @@ namespace UnityBuildingBlocks.ThirdPersonMovement
                 return;
             }
 
-            distance = Mathf.SmoothDamp(
-                distance,
-                targetDistance,
-                ref distanceVelocity,
-                zoomSmoothTime);
+            distance = Mathf.SmoothDamp(distance, targetDistance, ref distanceVelocity, zoomSmoothTime);
 
-            float yaw = followRotation
-                ? target.eulerAngles.y + yawOffset
-                : initialYaw + yawOffset;
+            float yaw = followRotation ? target.eulerAngles.y + yawOffset : initialYaw + yawOffset;
 
-            Quaternion orbitRotation =
-                Quaternion.Euler(pitch, yaw, 0f);
+            Quaternion orbitRotation = Quaternion.Euler(pitch, yaw, 0f);
+            Vector3 desiredPosition = target.position + Vector3.up * heightOffset + orbitRotation * (Vector3.back * distance);
 
-            Vector3 desiredPosition =
-                target.position +
-                Vector3.up * heightOffset +
-                orbitRotation * (Vector3.back * distance);
+            transform.position = Vector3.SmoothDamp(transform.position, desiredPosition, ref positionVelocity, positionSmoothTime);
 
-            transform.position = Vector3.SmoothDamp(
-                transform.position,
-                desiredPosition,
-                ref positionVelocity,
-                positionSmoothTime);
-
-            Vector3 lookAtPosition =
-                target.position + Vector3.up * lookAtHeight;
-
-            Vector3 lookDirection =
-                lookAtPosition - transform.position;
+            Vector3 lookAtPosition = target.position + Vector3.up * lookAtHeight;
+            Vector3 lookDirection = lookAtPosition - transform.position;
 
             if (lookDirection.sqrMagnitude > 0.001f)
             {
-                Quaternion targetRotation =
-                    Quaternion.LookRotation(lookDirection);
-
-                transform.rotation = Quaternion.Slerp(
-                    transform.rotation,
-                    targetRotation,
-                    rotationSmoothSpeed * Time.deltaTime);
+                Quaternion targetRotation = Quaternion.LookRotation(lookDirection);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSmoothSpeed * Time.deltaTime);
             }
         }
     }
