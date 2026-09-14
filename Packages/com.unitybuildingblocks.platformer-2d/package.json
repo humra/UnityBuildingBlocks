@@ -1,0 +1,22 @@
+{
+  "name": "com.unitybuildingblocks.platformer-2d",
+  "version": "1.0.0",
+  "displayName": "Unity Building Blocks - 2D Platformer",
+  "description": "Reusable 2D platformer movement using Rigidbody2D and Unity's Input System.",
+  "unity": "6000.6",
+  "unityRelease": "0f1",
+  "author": {
+    "name": "Humra"
+  },
+  "keywords": [
+    "2d",
+    "platformer",
+    "movement",
+    "jumping",
+    "rigidbody2d",
+    "input-system"
+  ],
+  "dependencies": {
+    "com.unity.inputsystem": "1.14.0"
+  }
+}
